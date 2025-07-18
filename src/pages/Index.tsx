@@ -191,8 +191,8 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="container mx-auto px-6 py-12 max-w-4xl">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="container flex-grow mx-auto px-6 py-12 max-w-4xl">
         {/* Header */}
         <div className="mb-12">
           <div className="flex items-center gap-3 mb-4">
@@ -374,14 +374,13 @@ const Index = () => {
             );
           })}
         </div>
-        {/* Footer */}
-        <div className="mt-12 text-center">
-          <p className="text-sm text-gray-500">
-            Changes are automatically saved • Last updated just now
-          </p>
-        </div>
       </div>
-
+      {/* Footer */}
+      <div className="py-4 text-center">
+        <p className="text-sm text-gray-500">
+          Changes are automatically saved • Last updated just now
+        </p>
+      </div>
       {/* Modal */}
       {isModalOpen && selectedSectionId && selectedSubSettingId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
