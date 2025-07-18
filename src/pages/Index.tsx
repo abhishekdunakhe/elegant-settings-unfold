@@ -4,6 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CreditCard, FileText, BarChart3, Settings, ChevronDown, Check } from "lucide-react";
 
 interface SettingsSection {
@@ -16,7 +17,10 @@ interface SettingsSection {
     id: string;
     title: string;
     description: string;
-    enabled: boolean;
+    enabled?: boolean;
+    type: 'toggle' | 'select';
+    options?: string[];
+    selectedValue?: string;
   }[];
 }
 
@@ -30,22 +34,19 @@ const Index = () => {
       enabled: false,
       subSettings: [
         {
-          id: 'auto-billing',
-          title: 'Auto-billing',
-          description: 'Automatically charge for subscription renewals',
-          enabled: true
+          id: 'enable-simplify-users',
+          title: 'Enable for simplify users',
+          description: 'Allow simplified user access to this feature',
+          enabled: false,
+          type: 'toggle'
         },
         {
-          id: 'usage-alerts',
-          title: 'Usage Alerts',
-          description: 'Get notified when approaching plan limits',
-          enabled: false
-        },
-        {
-          id: 'invoice-emails',
-          title: 'Invoice Emails',
-          description: 'Receive email notifications for invoices',
-          enabled: true
+          id: 'select-simplify-clients',
+          title: 'Select simplify clients',
+          description: 'Choose which clients have simplified access',
+          type: 'select',
+          options: ['All Clients', 'Premium Clients', 'Basic Clients', 'Custom Selection'],
+          selectedValue: 'All Clients'
         }
       ]
     },
@@ -57,22 +58,19 @@ const Index = () => {
       enabled: false,
       subSettings: [
         {
-          id: 'auto-save',
-          title: 'Auto-save',
-          description: 'Automatically save document changes',
-          enabled: true
+          id: 'enable-simplify-users',
+          title: 'Enable for simplify users',
+          description: 'Allow simplified user access to this feature',
+          enabled: false,
+          type: 'toggle'
         },
         {
-          id: 'version-history',
-          title: 'Version History',
-          description: 'Keep track of document versions',
-          enabled: true
-        },
-        {
-          id: 'sharing-permissions',
-          title: 'Sharing Permissions',
-          description: 'Control who can access your documents',
-          enabled: false
+          id: 'select-simplify-clients',
+          title: 'Select simplify clients',
+          description: 'Choose which clients have simplified access',
+          type: 'select',
+          options: ['All Clients', 'Premium Clients', 'Basic Clients', 'Custom Selection'],
+          selectedValue: 'All Clients'
         }
       ]
     },
@@ -84,22 +82,19 @@ const Index = () => {
       enabled: false,
       subSettings: [
         {
-          id: 'data-collection',
-          title: 'Data Collection',
-          description: 'Allow collection of usage analytics',
-          enabled: false
+          id: 'enable-simplify-users',
+          title: 'Enable for simplify users',
+          description: 'Allow simplified user access to this feature',
+          enabled: false,
+          type: 'toggle'
         },
         {
-          id: 'performance-tracking',
-          title: 'Performance Tracking',
-          description: 'Track application performance metrics',
-          enabled: true
-        },
-        {
-          id: 'weekly-reports',
-          title: 'Weekly Reports',
-          description: 'Receive weekly insight reports via email',
-          enabled: false
+          id: 'select-simplify-clients',
+          title: 'Select simplify clients',
+          description: 'Choose which clients have simplified access',
+          type: 'select',
+          options: ['All Clients', 'Premium Clients', 'Basic Clients', 'Custom Selection'],
+          selectedValue: 'All Clients'
         }
       ]
     }
@@ -119,8 +114,23 @@ const Index = () => {
         ? {
             ...section,
             subSettings: section.subSettings.map(sub =>
-              sub.id === subSettingId
+              sub.id === subSettingId && sub.type === 'toggle'
                 ? { ...sub, enabled: !sub.enabled }
+                : sub
+            )
+          }
+        : section
+    ));
+  };
+
+  const updateSelectValue = (sectionId: string, subSettingId: string, value: string) => {
+    setSections(prev => prev.map(section => 
+      section.id === sectionId 
+        ? {
+            ...section,
+            subSettings: section.subSettings.map(sub =>
+              sub.id === subSettingId && sub.type === 'select'
+                ? { ...sub, selectedValue: value }
                 : sub
             )
           }
@@ -212,8 +222,10 @@ const Index = () => {
                         >
                           <div className="flex items-center gap-3">
                             <div className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                              subSetting.enabled 
+                              subSetting.type === 'toggle' && subSetting.enabled
                                 ? 'bg-gradient-to-r from-blue-500 to-purple-600' 
+                                : subSetting.type === 'select'
+                                ? 'bg-gradient-to-r from-blue-500 to-purple-600'
                                 : 'bg-gray-300'
                             }`} />
                             <div>
@@ -225,11 +237,30 @@ const Index = () => {
                               </p>
                             </div>
                           </div>
-                          <Switch
-                            checked={subSetting.enabled}
-                            onCheckedChange={() => toggleSubSetting(section.id, subSetting.id)}
-                            className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-purple-600"
-                          />
+                          
+                          {subSetting.type === 'toggle' ? (
+                            <Switch
+                              checked={subSetting.enabled || false}
+                              onCheckedChange={() => toggleSubSetting(section.id, subSetting.id)}
+                              className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-purple-600"
+                            />
+                          ) : (
+                            <Select
+                              value={subSetting.selectedValue}
+                              onValueChange={(value) => updateSelectValue(section.id, subSetting.id, value)}
+                            >
+                              <SelectTrigger className="w-48">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {subSetting.options?.map((option) => (
+                                  <SelectItem key={option} value={option}>
+                                    {option}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -248,22 +279,24 @@ const Index = () => {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
+      <style>
+        {`
+          @keyframes fade-in {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
           }
-          to {
-            opacity: 1;
-            transform: translateY(0);
+          
+          .animate-fade-in {
+            animation: fade-in 0.5s ease-out forwards;
           }
-        }
-        
-        .animate-fade-in {
-          animation: fade-in 0.5s ease-out forwards;
-        }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
