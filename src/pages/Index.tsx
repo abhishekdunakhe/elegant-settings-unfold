@@ -1,11 +1,11 @@
-
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { CreditCard, FileText, BarChart3, Settings } from "lucide-react";
+import { CreditCard, FileText, BarChart3, Settings, Plus, X } from "lucide-react";
 import ClientSelector from "@/components/ClientSelector";
+import { Button } from "@/components/ui/button";
 
 interface SettingsSection {
   id: string;
@@ -18,131 +18,175 @@ interface SettingsSection {
     title: string;
     description: string;
     enabled?: boolean;
-    type: 'toggle' | 'clientSelector';
+    type: "toggle" | "clientSelector";
     selectedClients?: string[];
   }[];
 }
 
 const Index = () => {
   const availableClients = [
-    'All Clients',
-    'Premium Clients', 
-    'Basic Clients',
-    'Enterprise Clients',
-    'Startup Clients',
-    'Corporate Clients',
-    'Individual Clients',
-    'Government Clients'
+    "Premium Clients",
+    "Basic Clients",
+    "Enterprise Clients",
+    "Startup Clients",
+    "Corporate Clients",
+    "Individual Clients",
+    "Government Clients",
+    "Corporate Clients",
+    "Business Clients",
   ];
 
   const [sections, setSections] = useState<SettingsSection[]>([
     {
-      id: 'plans',
-      title: 'Plans',
-      description: 'Manage subscription plans and billing preferences',
+      id: "plans",
+      title: "Plans",
+      description: "Manage subscription plans and billing preferences",
       icon: CreditCard,
       enabled: false,
       subSettings: [
         {
-          id: 'enable-simplify-users',
-          title: 'Enable for simplify users',
-          description: 'Allow simplified user access to this feature',
+          id: "enable-simplify-users",
+          title: "Enable for simplify users",
+          description: "Allow simplified user access to this feature",
           enabled: false,
-          type: 'toggle'
+          type: "toggle",
         },
         {
-          id: 'select-simplify-clients',
-          title: 'Select simplify clients',
-          description: 'Choose which clients have simplified access',
-          type: 'clientSelector',
-          selectedClients: []
-        }
-      ]
+          id: "select-simplify-clients",
+          title: "Select simplify clients",
+          description: "Choose which clients have simplified access",
+          type: "clientSelector",
+          selectedClients: [],
+        },
+      ],
     },
     {
-      id: 'documents',
-      title: 'Documents',
-      description: 'Control document processing and storage settings',
+      id: "documents",
+      title: "Documents",
+      description: "Control document processing and storage settings",
       icon: FileText,
       enabled: false,
       subSettings: [
         {
-          id: 'enable-simplify-users',
-          title: 'Enable for simplify users',
-          description: 'Allow simplified user access to this feature',
+          id: "enable-simplify-users",
+          title: "Enable for simplify users",
+          description: "Allow simplified user access to this feature",
           enabled: false,
-          type: 'toggle'
+          type: "toggle",
         },
         {
-          id: 'select-simplify-clients',
-          title: 'Select simplify clients',
-          description: 'Choose which clients have simplified access',
-          type: 'clientSelector',
-          selectedClients: []
-        }
-      ]
+          id: "select-simplify-clients",
+          title: "Select simplify clients",
+          description: "Choose which clients have simplified access",
+          type: "clientSelector",
+          selectedClients: [],
+        },
+      ],
     },
     {
-      id: 'insights',
-      title: 'Insights',
-      description: 'Configure analytics and reporting features',
+      id: "insights",
+      title: "Insights",
+      description: "Configure analytics and reporting features",
       icon: BarChart3,
       enabled: false,
       subSettings: [
         {
-          id: 'enable-simplify-users',
-          title: 'Enable for simplify users',
-          description: 'Allow simplified user access to this feature',
+          id: "enable-simplify-users",
+          title: "Enable for simplify users",
+          description: "Allow simplified user access to this feature",
           enabled: false,
-          type: 'toggle'
+          type: "toggle",
         },
         {
-          id: 'select-simplify-clients',
-          title: 'Select simplify clients',
-          description: 'Choose which clients have simplified access',
-          type: 'clientSelector',
-          selectedClients: []
-        }
-      ]
-    }
+          id: "select-simplify-clients",
+          title: "Select simplify clients",
+          description: "Choose which clients have simplified access",
+          type: "clientSelector",
+          selectedClients: [],
+        },
+      ],
+    },
   ]);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  const [selectedSubSettingId, setSelectedSubSettingId] = useState<string | null>(null);
+
   const toggleSection = (sectionId: string) => {
-    setSections(prev => prev.map(section => 
-      section.id === sectionId 
-        ? { ...section, enabled: !section.enabled }
-        : section
-    ));
+    setSections((prev) =>
+      prev.map((section) =>
+        section.id === sectionId
+          ? { ...section, enabled: !section.enabled }
+          : section
+      )
+    );
   };
 
   const toggleSubSetting = (sectionId: string, subSettingId: string) => {
-    setSections(prev => prev.map(section => 
-      section.id === sectionId 
-        ? {
-            ...section,
-            subSettings: section.subSettings.map(sub =>
-              sub.id === subSettingId && sub.type === 'toggle'
-                ? { ...sub, enabled: !sub.enabled }
-                : sub
-            )
-          }
-        : section
-    ));
+    setSections((prev) =>
+      prev.map((section) =>
+        section.id === sectionId
+          ? {
+              ...section,
+              subSettings: section.subSettings.map((sub) =>
+                sub.id === subSettingId && sub.type === "toggle"
+                  ? { ...sub, enabled: !sub.enabled }
+                  : sub
+              ),
+            }
+          : section
+      )
+    );
   };
 
-  const updateSelectedClients = (sectionId: string, subSettingId: string, clients: string[]) => {
-    setSections(prev => prev.map(section => 
-      section.id === sectionId 
+  const updateSelectedClients = (
+    sectionId: string,
+    subSettingId: string,
+    clients: string[]
+  ) => {
+    setSections((prev) =>
+      prev.map((section) =>
+        section.id === sectionId
+          ? {
+              ...section,
+              subSettings: section.subSettings.map((sub) =>
+                sub.id === subSettingId && sub.type === "clientSelector"
+                  ? { ...sub, selectedClients: clients }
+                  : sub
+              ),
+            }
+          : section
+      )
+    );
+  };
+
+  const openModal = (sectionId: string, subSettingId: string) => {
+    console.log("Opening modal for section:", sectionId, "subSetting:", subSettingId);
+    setSelectedSectionId(sectionId);
+    setSelectedSubSettingId(subSettingId);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedSectionId(null);
+    setSelectedSubSettingId(null);
+  };
+
+  const removeClientFromSection = (sectionId: string, subSettingId: string, client: string) => {
+    const updatedSections = sections.map((section) =>
+      section.id === sectionId
         ? {
             ...section,
-            subSettings: section.subSettings.map(sub =>
-              sub.id === subSettingId && sub.type === 'clientSelector'
-                ? { ...sub, selectedClients: clients }
+            subSettings: section.subSettings.map((sub) =>
+              sub.id === subSettingId && sub.type === "clientSelector"
+                ? { ...sub, selectedClients: sub.selectedClients?.filter(c => c !== client) || [] }
                 : sub
-            )
+            ),
           }
         : section
-    ));
+    );
+    setSections(updatedSections);
   };
 
   return (
@@ -151,7 +195,7 @@ const Index = () => {
         {/* Header */}
         <div className="mb-12">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
+            <div className="p-2 bg-btn rounded-xl">
               <Settings className="h-6 w-6 text-white" />
             </div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
@@ -159,27 +203,34 @@ const Index = () => {
             </h1>
           </div>
           <p className="text-lg text-gray-600 max-w-2xl">
-            Configure your application preferences and manage feature settings to customize your experience.
+            Configure your application preferences and manage feature settings
+            to customize your experience.
           </p>
         </div>
 
         {/* Settings Sections */}
         <div className="space-y-6">
+          <div>
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">Features</h3>
+            <p className="text-gray-600 max-w-xl">Configure your application preferences and manage feature settings to customize your experience</p>
+          </div>
           {sections.map((section) => {
             const IconComponent = section.icon;
             return (
-              <Card 
-                key={section.id} 
+              <Card
+                key={section.id}
                 className="group hover:shadow-lg transition-all duration-300 border-0 shadow-sm bg-white/80 backdrop-blur-sm"
               >
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className={`p-3 rounded-xl transition-all duration-300 ${
-                        section.enabled 
-                          ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg' 
-                          : 'bg-gray-100 text-gray-600 group-hover:bg-gray-200'
-                      }`}>
+                      <div
+                        className={`p-3 rounded-xl transition-all duration-300 ${
+                          section.enabled
+                            ? "data-[state=checked]:bg-gradient-to-r bg-btn text-white shadow-lg"
+                            : "bg-gray-100 text-gray-600 group-hover:bg-gray-200"
+                        }`}
+                      >
                         <IconComponent className="h-5 w-5" />
                       </div>
                       <div>
@@ -192,11 +243,11 @@ const Index = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Label 
-                        htmlFor={section.id} 
+                      <Label
+                        htmlFor={section.id}
                         className="text-sm font-medium text-gray-700"
                       >
-                        {section.enabled ? 'Enabled' : 'Disabled'}
+                        {section.enabled ? "Enabled" : "Disabled"}
                       </Label>
                       <Switch
                         id={section.id}
@@ -209,33 +260,38 @@ const Index = () => {
                 </CardHeader>
 
                 {/* Expandable Sub-settings */}
-                <div 
-                  className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                    section.enabled 
-                      ? 'max-h-96 opacity-100' 
-                      : 'max-h-0 opacity-0'
+                <div
+                  className={`transition-all duration-500 ease-in-out ${
+                    section.enabled
+                      ? "max-h-96 opacity-100 overflow-y-auto overflow-x-hidden"
+                      : "max-h-0 opacity-0"
                   }`}
                 >
                   <Separator className="mx-6" />
                   <CardContent className="pt-6">
                     <div className="space-y-4">
                       {section.subSettings.map((subSetting, index) => (
-                        <div 
+                        <div
                           key={subSetting.id}
                           className={`p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-all duration-200 ${
-                            section.enabled ? 'animate-fade-in' : ''
+                            section.enabled ? "animate-fade-in" : ""
                           }`}
                           style={{ animationDelay: `${index * 100}ms` }}
                         >
                           <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-3">
-                              <div className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                                subSetting.type === 'toggle' && subSetting.enabled
-                                  ? 'bg-gradient-to-r from-blue-500 to-purple-600' 
-                                  : subSetting.type === 'clientSelector'
-                                  ? 'bg-gradient-to-r from-blue-500 to-purple-600'
-                                  : 'bg-gray-300'
-                              }`} />
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="flex items-center gap-3">
+                                <div
+                                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                                    subSetting.type === "toggle" &&
+                                    subSetting.enabled
+                                      ? "bg-gradient-to-r from-blue-500 to-purple-600"
+                                      : subSetting.type === "clientSelector"
+                                      ? "bg-gradient-to-r from-blue-500 to-purple-600"
+                                      : "bg-gray-300"
+                                  }`}
+                                />
+                              </div>
                               <div>
                                 <h4 className="font-medium text-gray-900">
                                   {subSetting.title}
@@ -245,22 +301,54 @@ const Index = () => {
                                 </p>
                               </div>
                             </div>
-                            
-                            {subSetting.type === 'toggle' && (
+                            <div>
+                              {subSetting.type === "clientSelector" && (
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => openModal(section.id, subSetting.id)}
+                                    className="hover:text-white p-3 rounded-xl transition-all duration-300 bg-btn text-white shadow-lg"
+                                  >
+                                    <Plus className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+
+                            {subSetting.type === "toggle" && (
                               <Switch
                                 checked={subSetting.enabled || false}
-                                onCheckedChange={() => toggleSubSetting(section.id, subSetting.id)}
+                                onCheckedChange={() =>
+                                  toggleSubSetting(section.id, subSetting.id)
+                                }
                                 className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-purple-600"
                               />
                             )}
                           </div>
-                          
-                          {subSetting.type === 'clientSelector' && (
-                            <ClientSelector
-                              selectedClients={subSetting.selectedClients || []}
-                              availableClients={availableClients}
-                              onClientsChange={(clients) => updateSelectedClients(section.id, subSetting.id, clients)}
-                            />
+                          {/* Show selected clients here */}
+                          {subSetting.type === "clientSelector" && subSetting.selectedClients?.length > 0 && (
+                            <div className="flex flex-wrap gap-2 p-2 bg-muted/50 rounded-lg">
+                              {subSetting.selectedClients.map((client) => (
+                                <div
+                                  key={client}
+                                  className="group w-full flex items-start justify-between gap-2 px-3 py-3 bg-background border rounded-lg text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200"
+                                >
+                                  <div className="">
+                                    <p className="text-lg font-semibold">{client}</p>
+                                    <span className="text-sm font-normal">This client is selected</span>
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-4 w-4 p-1 rounded-full hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
+                                    onClick={() => removeClientFromSection(section.id, subSetting.id, client)}
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
                           )}
                         </div>
                       ))}
@@ -279,6 +367,33 @@ const Index = () => {
           </p>
         </div>
       </div>
+
+      {/* Modal */}
+      {isModalOpen && selectedSectionId && selectedSubSettingId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-lg shadow-2xl p-6 w-full max-w-md h-[400px] animate-fade-in">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Select Clients</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={closeModal}
+                className="text-gray-600 hover:text-gray-900 absolute top-2 right-2"
+              >
+                <X className="h-6 w-6" />
+              </Button>
+            </div>
+            <ClientSelector
+              selectedClients={
+                sections.find(s => s.id === selectedSectionId)?.subSettings.find(ss => ss.id === selectedSubSettingId)?.selectedClients || []
+              }
+              availableClients={availableClients}
+              onClientsChange={(clients) => updateSelectedClients(selectedSectionId!, selectedSubSettingId!, clients)}
+              onClose={closeModal}
+            />
+          </div>
+        </div>
+      )}
 
       <style>
         {`
