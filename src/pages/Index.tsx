@@ -32,15 +32,15 @@ interface SettingsSection {
 
 const Index = () => {
   const availableClients = [
-    "Premium Clients",
-    "Basic Clients",
-    "Enterprise Clients",
-    "Startup Clients",
-    "Corporate Clients",
-    "Individual Clients",
-    "Government Clients",
-    "Corporate Clients",
-    "Business Clients",
+    "Simplify Client 1",
+    "Simplify Client 2",
+    "Simplify Client 3",
+    "Simplify Client 4",
+    "Simplify Client 5",
+    "Simplify Client 6",
+    "Simplify Client 7",
+    "Simplify Client 8",
+    "Simplify Client 9",
   ];
 
   const [sections, setSections] = useState<SettingsSection[]>([
