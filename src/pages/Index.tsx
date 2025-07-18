@@ -4,8 +4,8 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CreditCard, FileText, BarChart3, Settings, ChevronDown, Check } from "lucide-react";
+import { CreditCard, FileText, BarChart3, Settings } from "lucide-react";
+import ClientSelector from "@/components/ClientSelector";
 
 interface SettingsSection {
   id: string;
@@ -18,13 +18,23 @@ interface SettingsSection {
     title: string;
     description: string;
     enabled?: boolean;
-    type: 'toggle' | 'select';
-    options?: string[];
-    selectedValue?: string;
+    type: 'toggle' | 'clientSelector';
+    selectedClients?: string[];
   }[];
 }
 
 const Index = () => {
+  const availableClients = [
+    'All Clients',
+    'Premium Clients', 
+    'Basic Clients',
+    'Enterprise Clients',
+    'Startup Clients',
+    'Corporate Clients',
+    'Individual Clients',
+    'Government Clients'
+  ];
+
   const [sections, setSections] = useState<SettingsSection[]>([
     {
       id: 'plans',
@@ -44,9 +54,8 @@ const Index = () => {
           id: 'select-simplify-clients',
           title: 'Select simplify clients',
           description: 'Choose which clients have simplified access',
-          type: 'select',
-          options: ['All Clients', 'Premium Clients', 'Basic Clients', 'Custom Selection'],
-          selectedValue: 'All Clients'
+          type: 'clientSelector',
+          selectedClients: []
         }
       ]
     },
@@ -68,9 +77,8 @@ const Index = () => {
           id: 'select-simplify-clients',
           title: 'Select simplify clients',
           description: 'Choose which clients have simplified access',
-          type: 'select',
-          options: ['All Clients', 'Premium Clients', 'Basic Clients', 'Custom Selection'],
-          selectedValue: 'All Clients'
+          type: 'clientSelector',
+          selectedClients: []
         }
       ]
     },
@@ -92,9 +100,8 @@ const Index = () => {
           id: 'select-simplify-clients',
           title: 'Select simplify clients',
           description: 'Choose which clients have simplified access',
-          type: 'select',
-          options: ['All Clients', 'Premium Clients', 'Basic Clients', 'Custom Selection'],
-          selectedValue: 'All Clients'
+          type: 'clientSelector',
+          selectedClients: []
         }
       ]
     }
@@ -123,14 +130,14 @@ const Index = () => {
     ));
   };
 
-  const updateSelectValue = (sectionId: string, subSettingId: string, value: string) => {
+  const updateSelectedClients = (sectionId: string, subSettingId: string, clients: string[]) => {
     setSections(prev => prev.map(section => 
       section.id === sectionId 
         ? {
             ...section,
             subSettings: section.subSettings.map(sub =>
-              sub.id === subSettingId && sub.type === 'select'
-                ? { ...sub, selectedValue: value }
+              sub.id === subSettingId && sub.type === 'clientSelector'
+                ? { ...sub, selectedClients: clients }
                 : sub
             )
           }
@@ -215,51 +222,45 @@ const Index = () => {
                       {section.subSettings.map((subSetting, index) => (
                         <div 
                           key={subSetting.id}
-                          className={`flex items-center justify-between p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-all duration-200 ${
+                          className={`p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-all duration-200 ${
                             section.enabled ? 'animate-fade-in' : ''
                           }`}
                           style={{ animationDelay: `${index * 100}ms` }}
                         >
-                          <div className="flex items-center gap-3">
-                            <div className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                              subSetting.type === 'toggle' && subSetting.enabled
-                                ? 'bg-gradient-to-r from-blue-500 to-purple-600' 
-                                : subSetting.type === 'select'
-                                ? 'bg-gradient-to-r from-blue-500 to-purple-600'
-                                : 'bg-gray-300'
-                            }`} />
-                            <div>
-                              <h4 className="font-medium text-gray-900">
-                                {subSetting.title}
-                              </h4>
-                              <p className="text-sm text-gray-600">
-                                {subSetting.description}
-                              </p>
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                                subSetting.type === 'toggle' && subSetting.enabled
+                                  ? 'bg-gradient-to-r from-blue-500 to-purple-600' 
+                                  : subSetting.type === 'clientSelector'
+                                  ? 'bg-gradient-to-r from-blue-500 to-purple-600'
+                                  : 'bg-gray-300'
+                              }`} />
+                              <div>
+                                <h4 className="font-medium text-gray-900">
+                                  {subSetting.title}
+                                </h4>
+                                <p className="text-sm text-gray-600">
+                                  {subSetting.description}
+                                </p>
+                              </div>
                             </div>
+                            
+                            {subSetting.type === 'toggle' && (
+                              <Switch
+                                checked={subSetting.enabled || false}
+                                onCheckedChange={() => toggleSubSetting(section.id, subSetting.id)}
+                                className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-purple-600"
+                              />
+                            )}
                           </div>
                           
-                          {subSetting.type === 'toggle' ? (
-                            <Switch
-                              checked={subSetting.enabled || false}
-                              onCheckedChange={() => toggleSubSetting(section.id, subSetting.id)}
-                              className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-purple-600"
+                          {subSetting.type === 'clientSelector' && (
+                            <ClientSelector
+                              selectedClients={subSetting.selectedClients || []}
+                              availableClients={availableClients}
+                              onClientsChange={(clients) => updateSelectedClients(section.id, subSetting.id, clients)}
                             />
-                          ) : (
-                            <Select
-                              value={subSetting.selectedValue}
-                              onValueChange={(value) => updateSelectValue(section.id, subSetting.id, value)}
-                            >
-                              <SelectTrigger className="w-48">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {subSetting.options?.map((option) => (
-                                  <SelectItem key={option} value={option}>
-                                    {option}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
                           )}
                         </div>
                       ))}
